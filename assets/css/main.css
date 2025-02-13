@@ -3562,4 +3562,7 @@ body.absolute_header .breadcrumb_area {
 	border-radius: 50%;
 }
 
+#conPhone{
+	text-align: right;
+}
 /* END: Modal CSS */
