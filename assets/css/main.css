@@ -3310,7 +3310,8 @@ blockquote cite::before {
 	color: white;
 	line-height: 1;
 	position: absolute;
-	right: 0;
+	left: 0;
+	right: auto;
 	top: 0;
 	height: 100%;
 	width: 60px;
@@ -3562,7 +3563,4 @@ body.absolute_header .breadcrumb_area {
 	border-radius: 50%;
 }
 
-#conPhone{
-	text-align: right;
-}
 /* END: Modal CSS */
