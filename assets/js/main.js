@@ -391,39 +391,60 @@ Description: Gerold - Personal Portfolio HTML5 Template
 
 		// Form Validation
 		/* contact form */
+// Keep the validate plugin, but post to FastAPI instead of PHP
 		if ($("#contact-form").length > 0) {
-			$("#contact-form").validate({
-				rules: {
-					conName: "required",
-					conEmail: {
-						required: true,
-						email: true,
-					},
-				},
+		$("#contact-form").validate({
+			rules: {
+			conName: "required",
+			conEmail: { required: true, email: true },
+			},
+			messages: {
+			conName: "نام خود را وارد کنید",
+			conEmail: "ایمیل معتبر وارد نمایید",
+			},
+			submitHandler: async function(form, event) {
+			event.preventDefault(); // stop the default submit
 
-				messages: {
-					conName: "نام خود را وارد کنید",
-					conEmail: "ایمیل معتبر وارد نمایید",
-				},
-				submitHandler: function (form) {
-					// start ajax request
-					$.ajax({
-						type: "POST",
-						url: "assets/mail/contact-form.php",
-						data: $("#contact-form").serialize(),
-						cache: false,
-						success: function (data) {
-							if (data == "Y") {
-								$("#message_sent").modal("show");
-								$("#contact-form").trigger("reset");
-							} else {
-								$("#message_fail").modal("show");
-							}
-						},
-					});
-				},
-			});
+			const $form = $(form);
+			const $btn  = $form.find('button[type="submit"]');
+
+			const payload = {
+				name:        $("#conName").val().trim(),
+				last_name:   $("#conLName").val().trim(),
+				email:       $("#conEmail").val().trim(),
+				phone_number:$("#conPhone").val().trim(),
+				description: $("#conMessage").val().trim(),
+			};
+
+			// UX: prevent double-click
+			const orig = $btn.text();
+			$btn.prop("disabled", true).text("در حال ارسال...");
+
+			try {
+				const res = await fetch("https://contact-black-omega.vercel.app/contact", {
+				method: "POST",
+				headers: { "Content-Type": "application/json", "Accept": "application/json" },
+				body: JSON.stringify(payload),
+				});
+
+				if (res.ok) {
+				// Try parse, but don’t crash if backend returns plain string
+				try { console.log("Server:", await res.json()); } catch(e) {}
+				$("#message_sent").modal("show");
+				$form.trigger("reset");
+				} else {
+				console.error("HTTP", res.status, await res.text());
+				$("#message_fail").modal("show");
+				}
+			} catch (err) {
+				console.error("Network/CORS:", err);
+				$("#message_fail").modal("show");
+			} finally {
+				$btn.prop("disabled", false).text(orig);
+			}
+			},
+		});
 		}
-		/* !contact form */
+
 	});
 })(jQuery);
